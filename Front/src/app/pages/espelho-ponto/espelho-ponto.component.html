@@ -1,0 +1,146 @@
+<div class="mirror-container">
+
+  <div class="utility-bar">
+    <div class="left-utils">
+      <button class="btn-clean" (click)="imprimir()">
+        <span class="material-icons">print</span> Imprimir
+      </button>
+      <button class="btn-clean" (click)="exportarPDF()">
+        <span class="material-icons">file_download</span> Exportar PDF
+      </button>
+    </div>
+
+    <div class="right-utils" *ngIf="canEdit">
+      
+      <div class="search-box">
+        <span class="material-icons">search</span>
+        <input type="text" 
+               placeholder="Buscar Colaborador..." 
+               [(ngModel)]="searchTerm" 
+               (keyup.enter)="buscarColaborador()">
+      </div>
+
+      <button class="btn-clean">
+        <span class="material-icons">filter_list</span> Filtrar
+      </button>
+      
+      <span class="collab-count ms-3">| Modo RH</span>
+    </div>
+  </div>
+
+  <div class="dashboard-panel">
+    
+    <div class="profile-section">
+      <div class="profile-content">
+        <img [src]="collaborator.photo || 'assets/default-user.png'" 
+             class="profile-img" 
+             (error)="collaborator.photo = null" alt="Foto">
+        <div class="profile-info">
+          <h3>{{ collaborator.name }}</h3>
+          <!--<p>{{ collaborator.role }}</p>-->
+          <!--<span class="badge-id">Mat.: {{ collaborator.id }}</span>-->
+        </div>
+      </div>
+    </div>
+
+    <div class="vertical-divider"></div>
+
+    <div class="chart-section">
+      <div class="company-brand">
+        <strong>Meu Espelho</strong>
+        <span>Histórico Mensal</span>
+      </div>
+    </div>
+
+    <div class="vertical-divider"></div>
+
+    <div class="stats-section">
+      <span class="stats-label">Banco de horas</span>
+      <span class="stats-sub">Total Trabalhado</span>
+      <div>
+        <span class="stats-value">{{ summary.workedHours }}h</span>
+        <span class="stats-total">/{{ summary.targetHours }}h</span>
+      </div>
+    </div>
+
+    <div class="vertical-divider"></div>
+
+    <div class="extras-section">
+      <div class="extra-box">
+        <span class="material-icons extra-icon sun">wb_sunny</span>
+        <div class="extra-info">
+          <span>Extras Diu.</span>
+          <strong>{{ summary.extrasDay }}</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toolbar-section">
+    <div class="left-tools">
+      <div class="date-nav">
+        <button class="btn-nav" (click)="mesAnterior()"><span class="material-icons">chevron_left</span></button>    
+        <span>{{ periodoLabel }}</span>    
+        <button class="btn-nav" (click)="proximoMes()"><span class="material-icons">chevron_right</span></button>
+      </div>
+      <button class="btn-action" (click)="carregarEspelho()">
+        <span class="material-icons" style="font-size: 16px;">refresh</span> Atualizar
+      </button>
+    </div>
+
+    <div class="right-tools" *ngIf="canEdit">
+      <span class="warning-msg">
+        <span class="material-icons" style="font-size: 16px;">warning</span> 
+        Modo Administrador
+      </span>
+      <button class="btn-cancel" (click)="cancelarAcoes()">Cancelar</button>
+      <button class="btn-save" (click)="salvarAcoes()">Salvar</button>
+    </div>
+  </div>
+
+  <div class="table-container" id="printable-area">
+    <table>
+      <thead>
+        <tr>
+          <th width="30" class="center" *ngIf="canEdit"><input type="checkbox"></th>
+          <th width="30" class="center" *ngIf="canEdit"></th> 
+          <th width="50" class="center">Status</th>
+          <th>Dia</th>
+          <th>Previsto</th>
+          <th>Ent1 → Sai1</th>
+          <th>Ent2 → Sai2</th>
+          <th>Horas Prev.</th>
+          <th>Saldo</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let record of pontoRecords">
+          
+          <td class="center" *ngIf="canEdit"><input type="checkbox"></td>
+          <td class="center" *ngIf="canEdit">
+            <span class="material-icons edit-btn" style="color: #7f9cf5; cursor: pointer;">edit_square</span>
+          </td>
+
+          <td class="center">
+             <span class="material-icons status-icon" [ngClass]="getStatusColor(record.status)">
+               {{ getIcon(record.status) }}
+             </span>
+          </td>
+
+          <td>{{ record.date }}</td>
+          <td><span class="bg-light">{{ record.previsto }}</span></td>
+          <td>
+            <span [class.text-red]="record.ent1 === 'Falta'">{{ record.ent1 }}</span> → 
+            <span [class.text-red]="record.sai1 === 'Falta'">{{ record.sai1 }}</span>
+          </td>
+          <td>
+            <span [class.text-red]="record.ent2 === 'Falta'">{{ record.ent2 }}</span> → 
+            <span [class.text-red]="record.sai2 === 'Falta'">{{ record.sai2 }}</span>
+          </td>
+          <td>08:00</td>
+          <td [class.text-red]="record.saldo.includes('-')">{{ record.saldo }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

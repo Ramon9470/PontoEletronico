@@ -1,0 +1,71 @@
+<div class="report-container fade-in">
+  <div class="page-header">
+    <h1>Banco de Horas</h1>
+    <p>Extrato consolidado de saldos, créditos e débitos.</p>
+  </div>
+
+  <div class="filter-card">
+    <div class="card-title"><span class="material-icons">filter_alt</span> Filtros</div>
+    
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Data Início</label>
+        <input type="date" class="input-field" [(ngModel)]="dataInicio">
+      </div>
+      <div class="form-group">
+        <label>Data Fim</label>
+        <input type="date" class="input-field" [(ngModel)]="dataFim">
+      </div>
+
+      <div class="form-group full-width">
+        <label>Departamento</label>
+        <select class="input-field" [(ngModel)]="departamento">
+            <option value="Todos">Todos os Departamentos</option>
+            <option value="TI">TI</option>
+            <option value="RH">RH</option>
+            <option value="Financeiro">Financeiro</option>
+            <option value="Operacional">Operacional</option>
+        </select>
+      </div>
+
+      <div class="form-group full-width">
+        <label>Colaborador (Opcional)</label>
+        <select class="input-field" [(ngModel)]="funcionarioId">
+            <option value="Todos">Todos os Colaboradores</option>
+            <option *ngFor="let colab of colaboradores" [value]="colab.id">
+              {{ colab.name }}
+            </option>
+        </select>
+      </div>
+    </div>
+
+    <div class="card-footer">
+      <button class="btn-generate" (click)="gerarRelatorio()" [disabled]="isGerando">
+        {{ isGerando ? 'Gerando...' : 'Gerar Relatório' }}
+      </button>
+    </div>
+  </div>
+  
+  <div class="filter-card mt-4" style="margin-top: 20px;">
+    <div class="card-title">
+      <span class="material-icons">email</span> Enviar por E-mail
+    </div>
+    <div class="form-grid">
+      <div class="form-group full-width">
+        <label>Anexar PDF</label>
+        <div class="input-wrapper" style="border: 1px dashed #ccc; padding: 10px;">
+           <input type="file" (change)="onFileSelected($event)" accept=".pdf">
+        </div>
+      </div>
+      <div class="form-group full-width">
+         <label>E-mail Destino</label>
+         <input type="email" class="input-field" [(ngModel)]="emailDestino">
+      </div>
+    </div>
+    <div class="card-footer">
+       <button class="btn-generate" style="background: #2563eb;" (click)="enviarEmail()" [disabled]="isEnviando">
+          {{ isEnviando ? 'Enviando...' : 'Enviar Agora' }}
+       </button>
+    </div>
+  </div>
+</div>

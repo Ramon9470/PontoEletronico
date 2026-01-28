@@ -1,0 +1,99 @@
+version: '3.8'
+
+services:
+  # SERVIÇO DE BANCO DE DADOS MySQL
+  db:
+    image: mysql:8.0
+    container_name: ponto_db
+    restart: unless-stopped
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      #MYSQL_USER: ${DB_USERNAME}
+      #MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - dbdata:/var/lib/mysql
+    networks:
+      - ponto_net
+    ports:
+      - "3307:3306"
+
+  # BACKEND Laravel
+  app:
+    build:
+      context: ./Back
+      dockerfile: Dockerfile
+      args:
+        user: ${DOCKER_USER}
+        uid: ${DOCKER_UID}
+    container_name: ponto_app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./Back:/var/www
+    networks:
+      - ponto_net
+    depends_on:
+      - db
+
+  # WEBSERVER Nginx - Gateway
+  nginx:
+    image: nginx:alpine
+    container_name: ponto_gateway
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      #- "8000:80"
+    volumes:
+      - ./Back:/var/www
+      - ./Nginx:/etc/nginx/conf.d
+      - ./Nginx/certs:/etc/nginx/certs
+    depends_on:
+      - app
+      - front
+    networks:
+      - ponto_net
+
+  # FRONTEND Angular
+  front:
+    build:
+      context: ./Front
+      dockerfile: Dockerfile
+    container_name: ponto_front
+    volumes:
+      - ./Front:/app
+    # Comando específico para permitir acesso externo ao container
+    command: ng serve --host 0.0.0.0 --disable-host-check
+    networks:
+      - ponto_net
+    # Porta exposta apenas internamente para o Nginx, 
+    # mas pode expor 4200 se quiser acessar direto
+    ports:
+      - "4200:4200" 
+
+  # INTELIGÊNCIA ARTIFICIAL Python
+  python:
+    build: 
+      context: ./Python
+      dockerfile: Dockerfile
+    container_name: ponto_ia
+    volumes:
+      - ./Python:/app
+    environment:
+      - DB_HOST=ponto_db
+      - DB_USER=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_DATABASE=${DB_DATABASE}
+    depends_on:
+      - db
+    networks:
+      - ponto_net
+
+networks:
+  ponto_net:
+    driver: bridge
+
+volumes:
+  dbdata:

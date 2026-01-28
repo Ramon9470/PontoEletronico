@@ -1,0 +1,52 @@
+<div class="report-container fade-in">
+  <div class="page-header">
+    <h1>Relatório de Escalas e Turnos</h1>
+    <p>Consulte a distribuição de jornadas e regras de folga da equipe.</p>
+  </div>
+
+  <div class="filter-card">
+    <div class="card-title">
+      <span class="material-icons">filter_alt</span> Opções
+    </div>
+    
+    <div class="form-grid">
+       <div class="form-group full-width">
+         <p style="font-size: 13px; color: #666;">
+           Este relatório lista todos os colaboradores ativos e exibe suas escalas (5x2, 6x1) e turnos definidos.
+         </p>
+       </div>
+    </div>
+
+    <div class="card-footer">
+      <div class="info-text">
+        <span class="material-icons">info</span> Lista completa atualizada.
+      </div>
+      <button class="btn-generate" (click)="gerarRelatorio()" [disabled]="isGerando">
+        {{ isGerando ? 'Gerando...' : 'Visualizar Relatório' }}
+      </button>
+    </div>
+  </div>
+
+  <div class="filter-card mt-4" style="margin-top: 20px;">
+    <div class="card-title">
+      <span class="material-icons">email</span> Enviar por E-mail
+    </div>
+    <div class="form-grid">
+      <div class="form-group full-width">
+        <label>Anexar PDF</label>
+        <div class="input-wrapper" style="border: 1px dashed #ccc; padding: 10px;">
+           <input type="file" (change)="onFileSelected($event)" accept=".pdf">
+        </div>
+      </div>
+      <div class="form-group full-width">
+         <label>E-mail Destino</label>
+         <input type="email" class="input-field" [(ngModel)]="emailDestino">
+      </div>
+    </div>
+    <div class="card-footer">
+       <button class="btn-generate" style="background: #2563eb;" (click)="enviarEmail()" [disabled]="isEnviando">
+          {{ isEnviando ? 'Enviando...' : 'Enviar Agora' }}
+       </button>
+    </div>
+  </div>
+</div>

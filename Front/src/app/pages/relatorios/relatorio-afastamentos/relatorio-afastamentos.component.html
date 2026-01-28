@@ -1,0 +1,55 @@
+<div class="report-container fade-in">
+  <div class="page-header">
+    <h1>Relatório de Afastamentos</h1>
+    <p>Visualize faltas justificadas, atestados e férias no período.</p>
+  </div>
+
+  <div class="filter-card">
+    <div class="card-title">
+      <span class="material-icons">filter_alt</span> Filtros
+    </div>
+    
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Data Início</label>
+        <input type="date" class="input-field" [(ngModel)]="dataInicio">
+      </div>
+      <div class="form-group">
+        <label>Data Fim</label>
+        <input type="date" class="input-field" [(ngModel)]="dataFim">
+      </div>
+    </div>
+
+    <div class="card-footer">
+      <div class="info-text">
+        <span class="material-icons">info</span> Inclui todos os colaboradores.
+      </div>
+      <button class="btn-generate" (click)="gerarRelatorio()" [disabled]="isGerando">
+        {{ isGerando ? 'Gerando...' : 'Gerar Relatório' }}
+      </button>
+    </div>
+  </div>
+
+  <div class="filter-card mt-4" style="margin-top: 20px;">
+    <div class="card-title">
+      <span class="material-icons">email</span> Enviar por E-mail
+    </div>
+    <div class="form-grid">
+      <div class="form-group full-width">
+        <label>Anexar PDF Gerado</label>
+        <div class="input-wrapper" style="border: 1px dashed #ccc; padding: 10px;">
+           <input type="file" (change)="onFileSelected($event)" accept=".pdf">
+        </div>
+      </div>
+      <div class="form-group full-width">
+         <label>E-mail Destino</label>
+         <input type="email" class="input-field" [(ngModel)]="emailDestino">
+      </div>
+    </div>
+    <div class="card-footer">
+       <button class="btn-generate" style="background: #2563eb;" (click)="enviarEmail()" [disabled]="isEnviando">
+          {{ isEnviando ? 'Enviando...' : 'Enviar Agora' }}
+       </button>
+    </div>
+  </div>
+</div>

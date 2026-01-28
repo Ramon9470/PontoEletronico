@@ -1,0 +1,182 @@
+<div class="page-container fade-in">
+
+  <div class="header-section">
+    <div class="title-box">
+        <h2><span class="material-icons">medical_services</span> Gestão de Afastamentos</h2>
+        <p>Controle de atestados, licenças e faltas justificadas</p>
+    </div>
+
+    <div class="actions-box">
+      <div class="search-box">
+        <span class="material-icons">search</span>
+        <input type="text" placeholder="Buscar colaborador..." [(ngModel)]="termoBusca" (input)="aplicarFiltro()">
+      </div>
+      
+      <button class="btn-clean" (click)="exportarDados()">
+        <span class="material-icons">file_download</span> Exportar
+      </button>
+
+      <button class="btn-primary" (click)="abrirModal()">
+        <span class="material-icons">add</span> Lançar Afastamento
+      </button>
+    </div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="card-stat">
+      <div class="icon-box red"><span class="material-icons">person_off</span></div>
+      <div>
+        <span class="stat-value">{{ stats.ausentesHoje }}</span>
+        <span class="stat-label">Ausentes Hoje</span>
+      </div>
+    </div>
+    <div class="card-stat">
+      <div class="icon-box blue"><span class="material-icons">assignment_return</span></div>
+      <div>
+        <span class="stat-value">{{ stats.retornandoHoje }}</span>
+        <span class="stat-label">Retornando Hoje</span>
+      </div>
+    </div>
+    <div class="card-stat">
+      <div class="icon-box orange"><span class="material-icons">description</span></div>
+      <div>
+        <span class="stat-value">{{ stats.inss }}</span>
+        <span class="stat-label">INSS / Suspensão</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-container">
+    <div *ngIf="isLoading" class="loading-state">
+        <div class="spinner"></div>
+        <p>Carregando...</p>
+    </div>
+
+    <table *ngIf="!isLoading">
+      <thead>
+        <tr>
+          <th>Colaborador</th>
+          <th>Tipo</th>
+          <th>Período</th>
+          <th>Duração</th>
+          <th>Anexo</th>
+          <th>Status</th>
+          <th class="text-end">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of afastamentosFiltrados">
+          <td>
+            <div class="collab-info">
+              <img [src]="item.foto_url || 'assets/default-user.png'" 
+                    class="avatar" 
+                    (error)="$any($event.target).src = 'assets/default-user.png'">
+              <div class="text-info">
+                <strong>{{ item.funcionario_nome }}</strong>
+                <small>{{ item.cargo }}</small>
+              </div>
+            </div>
+          </td>
+          <td>{{ item.tipo_afastamento | titlecase }}</td>
+          <td>
+            <div class="date-range">
+                {{ item.data_inicio | date:'dd/MM' }} até {{ item.data_fim | date:'dd/MM' }}
+            </div>
+          </td>
+          <td>{{ item.dias_duracao }} dias</td>
+          
+          <td>
+            <a *ngIf="item.anexo_url" [href]="item.anexo_url" target="_blank" class="link-anexo">
+              <span class="material-icons">attachment</span> Ver
+            </a>
+            <span *ngIf="!item.anexo_url" class="text-muted">-</span>
+          </td>
+          
+          <td>
+            <span class="status-badge" [ngClass]="getClassBadge(item.status_atual)">
+              {{ item.status_atual }}
+            </span>
+          </td>
+          
+          <td class="text-end">
+            <button class="icon-btn delete" (click)="excluirAfastamento(item.id)" title="Excluir">
+              <span class="material-icons">delete</span>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    
+    <div *ngIf="!isLoading && afastamentosFiltrados.length === 0" class="empty-state">
+        <span class="material-icons">search_off</span>
+        <p>Nenhum afastamento encontrado.</p>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="isModalOpen">
+  <div class="modal-content animate__animated animate__fadeInDown">
+    <div class="modal-header">
+      <h3>Novo Afastamento</h3>
+      <button class="close-btn" (click)="fecharModal()"><span class="material-icons">close</span></button>
+    </div>
+
+    <div class="modal-body">
+      <div class="form-group highlight-box">
+        <label class="highlight-label">
+            <span class="material-icons">person</span> Colaborador
+        </label>
+        <select class="input-field" [(ngModel)]="novoAfastamento.usuarioId">
+            <option value="" disabled selected>Selecione o colaborador...</option>
+            <option *ngFor="let func of listaFuncionarios" [value]="func.id">{{ func.nome_completo || func.name }}</option>
+        </select>
+      </div>
+
+      <div class="form-row mt-3">
+        <div class="form-group">
+          <label>Data Início</label>
+          <input type="date" class="input-field" [(ngModel)]="novoAfastamento.dataInicio">
+        </div>
+        <div class="form-group">
+          <label>Data Fim (Previsão)</label>
+          <input type="date" class="input-field" [(ngModel)]="novoAfastamento.dataFim">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Tipo de Afastamento</label>
+        <select class="input-field" [(ngModel)]="novoAfastamento.tipo">
+          <option value="atestado">Atestado Médico</option>
+          <option value="maternidade">Licença Maternidade/Paternidade</option>
+          <option value="suspensao">Suspensão</option>
+          <option value="inss">Afastamento INSS</option>
+          <option value="outros">Outros</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Observação / Motivo</label>
+        <textarea rows="3" class="input-field" placeholder="Descreva o motivo..." [(ngModel)]="novoAfastamento.motivo"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Anexar Comprovante (PDF/Imagem)</label>
+        <div class="file-upload">
+          <label for="fileInput">
+            <span class="material-icons">cloud_upload</span> 
+            {{ nomeArquivoSelecionado || 'Clique para selecionar arquivo' }}
+          </label>
+          <input type="file" id="fileInput" (change)="aoSelecionarArquivo($event)" accept=".pdf,image/*">
+        </div>
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="fecharModal()" [disabled]="isSaving">Cancelar</button>
+      <button class="btn-save" (click)="salvarAfastamento()" [disabled]="isSaving">
+        {{ isSaving ? 'Salvando...' : 'Salvar Lançamento' }}
+      </button>
+    </div>
+  </div>
+</div>

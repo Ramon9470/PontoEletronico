@@ -1,0 +1,107 @@
+<div class="page-container fade-in p-4">
+    
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-white border-bottom py-3">
+            <h4 class="mb-0 text-primary"><i class="material-icons align-middle me-2">edit_note</i> Nova Solicitação</h4>
+            <small class="text-muted">Preencha os dados abaixo para corrigir seu ponto</small>
+        </div>
+
+        <div class="card-body p-4">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Data do Ocorrido</label>
+                    <input type="date" class="form-control" [(ngModel)]="dataOcorrido">
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Tipo de Ajuste</label>
+                    <select class="form-select" [(ngModel)]="tipoAjuste">
+                        <option value="inclusao">Inclusão de Ponto (Esqueci de bater)</option>
+                        <option value="abono">Abono (Atestado / Folga)</option>
+                        <option value="desconsiderar">Desconsiderar Ponto</option>
+                    </select>
+                </div>
+
+                <div class="col-md-4" *ngIf="tipoAjuste !== 'abono'">
+                    <label class="form-label">Horário (Se aplicável)</label>
+                    <input type="time" class="form-control" [(ngModel)]="horario">
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label">Justificativa</label>
+                    <textarea class="form-control" rows="3" [(ngModel)]="justificativa" placeholder="Explique o motivo..."></textarea>
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label">Anexar Comprovante (Opcional)</label>
+                    <div class="input-group">
+                        <input type="file" class="form-control" id="fileInput" (change)="onFileSelected($event)" accept="image/*,application/pdf">
+                    </div>
+                    <small class="text-muted" *ngIf="selectedFile">Selecionado: {{ selectedFile.name }}</small>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 mt-4">
+                <button class="btn btn-light border" (click)="onClear()">Limpar</button>
+                <button class="btn btn-primary px-4" (click)="onSubmit()" [disabled]="isSubmitting">
+                    {{ isSubmitting ? 'Enviando...' : 'Enviar Solicitação' }}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-white border-bottom py-3">
+            <h5 class="mb-0"><i class="material-icons align-middle me-2">history</i> Histórico</h5>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">Data Pedido</th>
+                        <th>Ocorrido em</th>
+                        <th>Tipo</th>
+                        <th>Status</th>
+                        <th class="text-end pe-4">Detalhes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let item of historyList">
+                        <td class="ps-4">{{ item.created_at | date:'dd/MM/yyyy' }}</td>
+                        <td>{{ item.data_ocorrido | date:'dd/MM/yyyy' }}</td>
+                        <td>{{ getTipoLabel(item.tipo_ajuste) }}</td>
+                        <td>
+                            <span class="badge" [ngClass]="getStatusClass(item.status)">
+                                {{ item.status | uppercase }}
+                            </span>
+                        </td>
+                        <td class="text-end pe-4">
+                            <button class="btn btn-sm btn-light border" (click)="toggleDetails(item)">
+                                <i class="material-icons fs-6">{{ item.showDetails ? 'visibility_off' : 'visibility' }}</i>
+                            </button>
+                        </td>
+                    </tr>
+                    
+                    <ng-container *ngFor="let item of historyList">
+                        <tr *ngIf="item.showDetails" class="bg-light">
+                            <td colspan="5" class="p-4">
+                                <p class="mb-1"><strong>Motivo:</strong> {{ item.justificativa }}</p>
+                                <p class="mb-1" *ngIf="item.horario"><strong>Horário:</strong> {{ item.horario }}</p>
+                                <div *ngIf="item.anexo_url" class="mt-2">
+                                    <a [href]="item.anexo_url" target="_blank" class="btn btn-sm btn-outline-primary">
+                                        <i class="material-icons align-middle fs-6">attachment</i> Ver Comprovante
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    </ng-container>
+                </tbody>
+            </table>
+            
+            <div *ngIf="historyList.length === 0" class="p-5 text-center text-muted">
+                <i class="material-icons fs-1 d-block mb-2">inbox</i>
+                Nenhuma solicitação encontrada.
+            </div>
+        </div>
+    </div>
+</div>

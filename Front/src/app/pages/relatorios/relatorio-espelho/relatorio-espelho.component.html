@@ -1,0 +1,97 @@
+<div class="report-container fade-in">
+
+  <div class="page-header">
+    <h1>Relatório de Espelho de Ponto</h1>
+    <p>Gere o espelho de ponto detalhado para conferência e assinatura.</p>
+  </div>
+
+  <div class="filter-card">
+    <div class="card-title">
+      <span class="material-icons">tune</span> Filtros de Emissão
+    </div>
+
+    <div class="form-grid">
+      
+      <div class="form-group full-width">
+        <label>Colaborador / Equipe</label>
+        <div class="input-wrapper">
+          <span class="material-icons">person_search</span>
+          <select [(ngModel)]="filtros.funcionario" name="funcionario">
+            <option value="" disabled selected>Selecione um colaborador...</option>
+            <option *ngFor="let func of listaFuncionarios" [value]="func.id">
+              {{ func.nome_completo || func.name }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Data Início</label>
+        <input type="date" class="input-field" [(ngModel)]="filtros.dataInicio">
+      </div>
+
+      <div class="form-group">
+        <label>Data Fim</label>
+        <input type="date" class="input-field" [(ngModel)]="filtros.dataFim">
+      </div>
+
+      <div class="form-group">
+        <label>Formato de Saída</label>
+        <div class="format-selector">
+          <label class="radio-box" [class.selected]="filtros.formato === 'pdf'">
+            <input type="radio" name="format" value="pdf" [(ngModel)]="filtros.formato">
+            <span class="material-icons">picture_as_pdf</span> PDF
+          </label>
+          <label class="radio-box" [class.selected]="filtros.formato === 'excel'">
+            <input type="radio" name="format" value="excel" [(ngModel)]="filtros.formato">
+            <span class="material-icons">table_view</span> Excel
+          </label>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="card-footer">
+      <div class="info-text">
+        <span class="material-icons">info</span>
+        O relatório incluirá horas, afastamentos e resumo do período.
+      </div>
+
+      <button class="btn-generate" (click)="gerarRelatorio()" [disabled]="isGerando">
+        <span class="material-icons" *ngIf="!isGerando">print</span>
+        <span class="material-icons spin" *ngIf="isGerando">sync</span>
+        {{ isGerando ? 'Gerando...' : 'Gerar Relatório' }}
+      </button>
+    </div>
+
+  </div>
+
+  <div class="filter-card mt-4" style="margin-top: 20px;">
+    <div class="card-title">
+      <span class="material-icons">email</span> Enviar por E-mail
+    </div>
+    
+    <div class="form-grid">
+      <div class="form-group full-width">
+        <label>Anexar Relatório (Se já baixou o PDF/Excel)</label>
+        <div class="input-wrapper" style="border: 1px dashed #ccc; padding: 10px; border-radius: 5px;">
+           <input type="file" (change)="aoSelecionarArquivo($event)" accept=".pdf, .xlsx, .xls">
+        </div>
+      </div>
+
+      <div class="form-group full-width">
+         <label>E-mail de Destino</label>
+         <input type="email" class="input-field" [(ngModel)]="emailDestino" placeholder="exemplo@empresa.com">
+      </div>
+    </div>
+
+    <div class="card-footer">
+       <button class="btn-generate" style="background-color: #2563eb;" (click)="enviarEmail()" [disabled]="isEnviando || !arquivoSelecionado">
+          <span class="material-icons" *ngIf="!isEnviando">send</span>
+          <span class="material-icons spin" *ngIf="isEnviando">sync</span>
+          {{ isEnviando ? 'Enviando...' : 'Enviar Agora' }}
+       </button>
+    </div>
+  </div>
+
+</div>

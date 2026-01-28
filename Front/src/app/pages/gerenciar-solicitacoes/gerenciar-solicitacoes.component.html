@@ -1,0 +1,75 @@
+<div class="page-container fade-in">
+    
+    <div class="header-section">
+        <h2><span class="material-icons">fact_check</span> Aprovação de Ajustes</h2>
+        <p>Gerencie as solicitações de ponto da equipe</p>
+    </div>
+
+    <div *ngIf="isLoading" class="loading-state">
+        <div class="spinner"></div>
+        <p>Carregando solicitações...</p>
+    </div>
+
+    <div class="requests-grid" *ngIf="!isLoading">
+        
+        <div class="request-card" *ngFor="let item of pendingList">
+            
+            <div class="card-top">
+                <div class="user-info">
+                    <img [src]="item.foto_url || 'assets/default-user.png'" 
+                         class="avatar" 
+                         (error)="item.foto_url = 'assets/default-user.png'">
+                    <div>
+                        <strong>{{ item.nome_completo }}</strong>
+                        <span class="role">{{ item.cargo || 'Colaborador' }}</span>
+                    </div>
+                </div>
+                <div class="date-badge">
+                    Criado: {{ item.created_at | date:'dd/MM' }}
+                </div>
+            </div>
+
+            <div class="card-body">
+                <div class="info-row">
+                    <span class="label">Ocorrido em:</span>
+                    <span class="value">{{ item.data_ocorrido | date:'dd/MM/yyyy' }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Tipo:</span>
+                    <span class="value type-badge">{{ item.tipo_ajuste | uppercase }}</span>
+                </div>
+                <div class="info-row" *ngIf="item.horario">
+                    <span class="label">Horário:</span>
+                    <span class="value">{{ item.horario }}</span>
+                </div>
+                
+                <div class="justification-box">
+                    <p>"{{ item.justificativa }}"</p>
+                </div>
+
+                <div class="attachment-btn" *ngIf="item.anexo_url">
+                    <a [href]="item.anexo_url" target="_blank">
+                        <span class="material-icons">attachment</span> Ver Comprovante
+                    </a>
+                </div>
+            </div>
+
+            <div class="card-actions">
+                <button class="btn-reject" (click)="confirmAction(item, 'recusado')">
+                    Recusar
+                </button>
+                
+                <button class="btn-approve" (click)="confirmAction(item, 'aprovado')">
+                    <span class="material-icons">check</span> Aprovar
+                </button>
+            </div>
+        </div>
+
+        <div class="empty-state" *ngIf="pendingList.length === 0">
+            <span class="material-icons">check_circle_outline</span>
+            <h3>Tudo em dia!</h3>
+            <p>Nenhuma solicitação pendente no momento.</p>
+        </div>
+
+    </div>
+</div>

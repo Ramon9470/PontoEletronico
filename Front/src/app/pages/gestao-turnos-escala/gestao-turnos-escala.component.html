@@ -1,0 +1,219 @@
+<div class="page-container fade-in" (click)="activeMenuId = null">
+
+    <div class="header-section">
+        <div class="title-box">
+            <h2><span class="material-icons">schedule</span> Turnos e Escalas</h2>
+            <p>Gerencie horários de trabalho e alocação de equipe</p>
+        </div>
+
+        <div class="actions-box">
+            <div class="search-box">
+                <span class="material-icons">search</span>
+                <input type="text" placeholder="Buscar turno..." [(ngModel)]="termoBusca" (input)="aplicarFiltros()">
+            </div>
+            
+            <button class="btn-primary" (click)="abrirModal()">
+                <span class="material-icons">add</span> Novo Turno
+            </button>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="card-stat">
+            <div class="icon-box purple">
+                <span class="material-icons">watch_later</span>
+            </div>
+            <div>
+                <span class="stat-value">{{ stats.ativos }}</span>
+                <span class="stat-label">Turnos Ativos</span>
+            </div>
+        </div>
+        <div class="card-stat">
+            <div class="icon-box green">
+                <span class="material-icons">groups</span>
+            </div>
+            <div>
+                <span class="stat-value">{{ stats.escalados }}</span>
+                <span class="stat-label">Colaboradores Escalados</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <div *ngIf="isLoading" class="loading-state">
+            <div class="spinner"></div>
+            <p>Carregando dados...</p>
+        </div>
+
+        <table *ngIf="!isLoading">
+            <thead>
+                <tr>
+                    <th>Nome do Turno</th>
+                    <th>Horário</th>
+                    <th>Intervalo</th>
+                    <th>Dias</th>
+                    <th class="text-center">Colaboradores</th>
+                    <th>Status</th>
+                    <th class="text-end">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let turno of turnosFiltrados">
+                    <td class="fw-bold text-dark">{{ turno.nome }}</td>
+                    <td>
+                        <div class="time-badge">
+                            {{ turno.entrada }} - {{ turno.saida }}
+                        </div>
+                    </td>
+                    <td class="text-muted">{{ turno.intervalo || 'Sem intervalo' }}</td>
+                    <td>
+                        <div class="days-grid">
+                            <span *ngFor="let dia of turno.diasArray" 
+                                  class="day-dot" 
+                                  [class.active]="diaEstaAtivo(dia)">
+                                {{ dia !== '-' ? dia : '' }}
+                            </span>
+                        </div>
+                    </td>
+                    <td class="text-center">
+                        <div class="collaborators-badge" (click)="abrirModalColaboradores(turno)" title="Ver lista">
+                            <span class="material-icons">person</span>
+                            {{ turno.qtd_colaboradores || 0 }}
+                        </div>
+                    </td>
+                    <td>
+                        <span class="status-badge" [ngClass]="getClassBadge(turno.status)">
+                            {{ turno.status === 'ativo' ? 'Ativo' : 'Inativo' }}
+                        </span>
+                    </td>
+                    <td class="text-end position-relative">
+                        <button class="icon-btn" (click)="alternarMenu(turno.id, $event)">
+                            <span class="material-icons">more_vert</span>
+                        </button>
+                        
+                        <div class="action-menu" *ngIf="activeMenuId === turno.id" (click)="$event.stopPropagation()">
+                            <button (click)="editarTurno(turno)">
+                                <span class="material-icons">edit</span> Editar
+                            </button>
+                            <button (click)="alternarStatus(turno)">
+                                <span class="material-icons">toggle_on</span> 
+                                {{ turno.status === 'ativo' ? 'Desativar' : 'Ativar' }}
+                            </button>
+                            <button class="text-danger" (click)="excluirTurno(turno)">
+                                <span class="material-icons">delete</span> Excluir
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <div *ngIf="!isLoading && turnosFiltrados.length === 0" class="empty-state">
+            <span class="material-icons">search_off</span>
+            <p>Nenhum turno encontrado.</p>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" *ngIf="isModalOpen">
+    <div class="modal-content animate__animated animate__fadeInDown">
+        <div class="modal-header">
+            <h3>{{ isEditing ? 'Editar Turno' : 'Novo Turno' }}</h3>
+            <button class="close-btn" (click)="fecharModal()">
+                <span class="material-icons">close</span>
+            </button>
+        </div>
+
+        <div class="modal-body">
+            <div class="form-group highlight-box">
+                <label class="highlight-label">
+                    <span class="material-icons">person_add</span> Vincular Colaborador (Opcional)
+                </label>
+                <select class="input-field" [(ngModel)]="novoTurno.usuarioId">
+                    <option value="" selected>-- Apenas criar o turno (Sem vínculo) --</option>
+                    <option *ngFor="let func of listaFuncionarios" [value]="func.id">
+                        {{ func.nome_completo || func.name }}
+                    </option>
+                </select>
+                <small class="text-info">
+                    *Se selecionar alguém, o usuário será movido para este turno imediatamente.
+                </small>
+            </div>
+
+            <div class="form-group mt-3">
+                <label>Nome do Turno <span class="required">*</span></label>
+                <input type="text" class="input-field" placeholder="Ex: Comercial 08h às 18h" [(ngModel)]="novoTurno.nome">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Entrada <span class="required">*</span></label>
+                    <input type="time" class="input-field" [(ngModel)]="novoTurno.entrada">
+                </div>
+                <div class="form-group">
+                    <label>Saída <span class="required">*</span></label>
+                    <input type="time" class="input-field" [(ngModel)]="novoTurno.saida">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Intervalo (Almoço)</label>
+                <input type="text" class="input-field" placeholder="Ex: 12:00 - 13:00" [(ngModel)]="novoTurno.intervalo">
+            </div>
+
+            <div class="form-group">
+                <label>Dias da Semana</label>
+                <div class="days-selector">
+                    <div class="day-check" [class.selected]="novoTurno.dias['D']" (click)="alternarDia('D')">Dom</div>
+                    <div class="day-check" [class.selected]="novoTurno.dias['S']" (click)="alternarDia('S')">Seg</div>
+                    <div class="day-check" [class.selected]="novoTurno.dias['T']" (click)="alternarDia('T')">Ter</div>
+                    <div class="day-check" [class.selected]="novoTurno.dias['Q']" (click)="alternarDia('Q')">Qua</div>
+                    <div class="day-check" [class.selected]="novoTurno.dias['QI']" (click)="alternarDia('QI')">Qui</div>
+                    <div class="day-check" [class.selected]="novoTurno.dias['SX']" (click)="alternarDia('SX')">Sex</div>
+                    <div class="day-check" [class.selected]="novoTurno.dias['SA']" (click)="alternarDia('SA')">Sab</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn-cancel" (click)="fecharModal()" [disabled]="isSaving">Cancelar</button>
+            <button class="btn-save" (click)="salvarTurno()" [disabled]="isSaving">
+                {{ isSaving ? 'Salvando...' : (isEditing ? 'Atualizar' : 'Salvar Turno') }}
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" *ngIf="isCollaboratorsModalOpen">
+    <div class="modal-content animate__animated animate__fadeInDown modal-sm">
+        <div class="modal-header">
+            <h3>{{ nomeTurnoAtual }}</h3>
+            <button class="close-btn" (click)="fecharModalColaboradores()">
+                <span class="material-icons">close</span>
+            </button>
+        </div>
+        
+        <div class="modal-body">
+            <ul class="list-group" *ngIf="listaColaboradoresTurno.length > 0">
+                <li class="list-item" *ngFor="let colab of listaColaboradoresTurno">
+                    <img [src]="colab.foto_url || 'assets/default-user.png'" 
+                         class="avatar-sm" 
+                         (error)="$any($event.target).src = 'assets/default-user.png'">
+                    <div>
+                        <div class="fw-bold">{{ colab.nome_completo || colab.name }}</div>
+                        <small class="text-muted">{{ colab.cargo || 'Sem cargo' }}</small>
+                    </div>
+                </li>
+            </ul>
+            
+            <div *ngIf="listaColaboradoresTurno.length === 0" class="empty-modal">
+                <span class="material-icons">group_off</span>
+                <p>Nenhum colaborador atribuído.</p>
+            </div>
+        </div>
+        
+        <div class="modal-footer">
+            <button class="btn-cancel w-100" (click)="fecharModalColaboradores()">Fechar</button>
+        </div>
+    </div>
+</div>

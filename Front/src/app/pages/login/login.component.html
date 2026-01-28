@@ -1,0 +1,63 @@
+<div class="login-container d-flex align-items-center justify-content-center">
+  <div class="card login-card p-4 shadow-lg">
+    <div class="card-body text-center">
+      
+      <div class="logo-container mb-4 mx-auto">
+        <h2 class="fw-bold text-primary">Ponto Eletrônico</h2>
+      </div>
+
+      <h4 class="welcome-text mb-1">Seja Bem-vindo</h4>
+      <p class="subtitle-text mb-4 text-muted">Acesse sua conta</p>
+
+      <div *ngIf="errorMessage" class="alert alert-danger d-flex align-items-center" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <div>
+          {{ errorMessage }}
+        </div>
+      </div>
+
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        
+        <div class="input-group mb-3 custom-input-group">
+          <span class="input-group-text bg-light border-end-0">
+            <i class="bi bi-person-fill"></i>
+          </span>
+          <input 
+            type="text" 
+            class="form-control border-start-0" 
+            placeholder="Usuário" 
+            formControlName="username"
+            [class.is-invalid]="loginForm.get('username')?.invalid && loginForm.get('username')?.touched">
+        </div>
+
+        <div class="input-group mb-4 custom-input-group">
+          <span class="input-group-text bg-light border-end-0">
+            <i class="bi bi-lock-fill"></i>
+          </span>
+          <input 
+            [type]="showPassword ? 'text' : 'password'" 
+            class="form-control border-start-0" 
+            placeholder="Senha" 
+            formControlName="password"
+            [class.is-invalid]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+          
+          <button 
+            class="btn btn-outline-secondary border-start-0" 
+            type="button" 
+            (click)="togglePassword()">
+            <i class="bi" [ngClass]="showPassword ? 'bi-eye-slash-fill' : 'bi-eye-fill'"></i>
+          </button>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100 btn-login mb-3 py-2 fw-bold">
+          ENTRAR
+        </button>
+
+        <div class="footer-text mt-3">
+          <small class="text-muted">Esqueceu a senha? <span class="text-primary fw-bold cursor-pointer">Informe ao RH</span></small>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>

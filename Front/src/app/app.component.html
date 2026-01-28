@@ -1,0 +1,17 @@
+<div class="layout-wrapper" *ngIf="!isLoginPage && (authService.currentUser$ | async)">
+  
+  <app-sidebar #sidebar></app-sidebar>
+  
+  <div class="main-content" [class.expanded]="sidebar.isCollapsed">
+    <app-navbar (toggleSidebar)="sidebar.toggleSidebar()"></app-navbar>
+    
+    <div class="content-body">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+
+</div>
+
+<ng-container *ngIf="isLoginPage || !(authService.currentUser$ | async)">
+  <router-outlet></router-outlet>
+</ng-container>

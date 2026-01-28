@@ -1,0 +1,100 @@
+<div class="container-fluid page-container fade-in p-4">
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="text-dark m-0">Colaboradores</h2>
+            <p class="text-muted m-0">Gerencie sua equipe</p>
+        </div>
+        <button class="btn btn-primary d-flex align-items-center gap-2" (click)="navigateToAdd()">
+            <i class="material-icons" style="font-size: 1.2rem;">add</i> Novo Usuário
+        </button>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body">
+            <input type="text" 
+                   class="form-control" 
+                   placeholder="Pesquisar por nome, cargo ou CPF..." 
+                   [(ngModel)]="searchTerm"
+                   (input)="filterList()">
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4">Nome</th>
+                            <th>Cargo</th>
+                            <th>WhatsApp</th>
+                            <th>CPF</th>
+                            <th>Status</th>
+                            <th class="text-end pe-4">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngIf="isLoading">
+                            <td colspan="6" class="text-center py-5">
+                                <div class="spinner-border text-primary" role="status"></div>
+                                <p class="mt-2 text-muted">Carregando equipe...</p>
+                            </td>
+                        </tr>
+
+                        <tr *ngIf="!isLoading && filteredList.length === 0">
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                Nenhum colaborador encontrado.
+                            </td>
+                        </tr>
+
+                        <tr *ngFor="let item of filteredList">
+                            <td class="ps-4">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-circle me-3 overflow-hidden rounded-circle border d-flex align-items-center justify-content-center bg-light" 
+                                        style="width: 40px; height: 40px; min-width: 40px;">
+                                        
+                                        <img *ngIf="item.foto_url" 
+                                            [src]="item.foto_url" 
+                                            class="w-100 h-100 object-fit-cover"
+                                            (error)="item.foto_url = null"> <span *ngIf="!item.foto_url" class="fw-bold text-secondary">
+                                            {{ item.name.charAt(0).toUpperCase() }}
+                                        </span>
+                                    </div>                                    
+                                    <div>
+                                        <div class="fw-bold text-dark">{{ item.name }}</div>
+                                        <div class="small text-muted">{{ item.email || item.username }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            
+                            <td>{{ item.cargo || '-' }}</td>
+                            <td>{{ item.whatsapp || item.telefone || '-' }}</td>
+                            <td>{{ item.cpf || '-' }}</td>
+                            
+                            <td>
+                                <span class="badge rounded-pill user-select-none" 
+                                    style="cursor: pointer;"
+                                    [title]="'Clique para ' + (item.active ? 'desativar' : 'ativar')"
+                                    (click)="toggleStatus(item)"
+                                    [ngClass]="item.active ? 'bg-success' : 'bg-danger'">
+                                    {{ item.active ? 'Ativo' : 'Inativo' }}
+                                    <i class="material-icons align-middle ms-1" style="font-size: 12px;">cached</i>
+                                </span>
+                            </td>
+                            
+                            <td class="text-end pe-4">
+                                <button class="btn btn-sm btn-outline-primary me-2" (click)="editEmployee(item.id)">
+                                    <i class="material-icons" style="font-size: 1rem;">edit</i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" (click)="deleteEmployee(item.id)">
+                                    <i class="material-icons" style="font-size: 1rem;">delete</i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

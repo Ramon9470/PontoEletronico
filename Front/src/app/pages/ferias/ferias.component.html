@@ -1,0 +1,187 @@
+<div class="page-container fade-in">
+
+  <div class="header-section">
+    <div class="title-box">
+        <h2><span class="material-icons">beach_access</span> Gestão de Férias</h2>
+        <p>Programe e controle o descanso dos colaboradores</p>
+    </div>
+
+    <div class="actions-box">
+      <div class="search-box">
+        <span class="material-icons">search</span>
+        <input type="text" 
+               name="termoBusca" 
+               placeholder="Buscar colaborador..." 
+               [(ngModel)]="termoBusca" 
+               (input)="filtrar()">
+      </div>
+      <button class="btn-clean" (click)="exportarDados()">
+        <span class="material-icons">file_download</span> Relatório
+      </button>
+      <button class="btn-primary" (click)="abrirModal()">
+        <span class="material-icons">add</span> Programar Férias
+      </button>
+    </div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="card-stat">
+      <div class="icon-box green"><span class="material-icons">flight_takeoff</span></div>
+      <div>
+        <span class="stat-value">{{ stats.emFerias }}</span>
+        <span class="stat-label">Em Férias Hoje</span>
+      </div>
+    </div>
+    
+    <div class="card-stat">
+      <div class="icon-box blue"><span class="material-icons">event</span></div>
+      <div>
+        <span class="stat-value">{{ stats.programadas }}</span>
+        <span class="stat-label">Programadas</span>
+      </div>
+    </div>
+
+    <div class="card-stat">
+      <div class="icon-box orange"><span class="material-icons">monetization_on</span></div>
+      <div>
+        <span class="stat-value">{{ stats.abonosVendidos }}</span>
+        <span class="stat-label">Abonos Vendidos</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-container">
+    <div *ngIf="isLoading" class="loading-state">
+        <div class="spinner"></div>
+        <p>Carregando dados...</p>
+    </div>
+
+    <table *ngIf="!isLoading">
+      <thead>
+        <tr>
+          <th>Colaborador</th>
+          <th>Período</th>
+          <th>Dias</th>
+          <th>Retorno</th>
+          <th>Abono (1/3)</th>
+          <th>Status</th>
+          <th class="text-end">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of feriasFiltradas">
+          <td>
+            <div class="collab-info">
+               <img [src]="item.foto_url || 'assets/default-user.png'" 
+                    class="avatar" 
+                    alt="Foto do colaborador"
+                    (error)="$any($event.target).src = 'assets/default-user.png'">
+               <div class="text-info">
+                 <strong>{{ item.nome_completo }}</strong>
+                 <small>{{ item.cargo }}</small>
+               </div>
+            </div>
+          </td>
+          <td>{{ item.data_inicio | date:'dd/MM' }} à {{ item.data_fim | date:'dd/MM' }}</td>
+          
+          <td>{{ item.dias_gozo }} dias</td>
+          
+          <td>{{ item.data_fim | date:'dd/MM/yyyy' }}</td>
+          
+          <td>
+            <span *ngIf="item.vender_um_terco" class="badge-money">Vendido</span>
+            <span *ngIf="!item.vender_um_terco" class="text-muted">-</span>
+          </td>
+
+          <td>
+            <span class="status-badge" [ngClass]="getStatusClass(item.status_visual)">
+              {{ getStatusLabel(item.status_visual) }}
+            </span>
+          </td>
+          
+          <td class="text-end">
+            <button class="icon-btn delete" (click)="excluirFerias(item.id)" title="Cancelar">
+                <span class="material-icons">delete</span>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div *ngIf="!isLoading && feriasFiltradas.length === 0" class="empty-state">
+        <span class="material-icons">beach_access</span>
+        <p>Nenhuma programação encontrada.</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="modal-overlay" *ngIf="isModalOpen">
+  <div class="modal-content animate__animated animate__fadeInDown">
+    <div class="modal-header">
+      <h3>Programar Férias</h3>
+      <button class="close-btn" (click)="fecharModal()"><span class="material-icons">close</span></button>
+    </div>
+
+    <div class="modal-body">
+      <div class="form-group highlight-box">
+        <label class="highlight-label">
+            <span class="material-icons">person</span> Colaborador
+        </label>
+        <select class="input-field" name="usuarioId" [(ngModel)]="novasFerias.usuarioId">
+            <option value="" disabled>Selecione...</option>
+            <option *ngFor="let func of listaFuncionarios" [value]="func.id">
+                {{ func.nome_completo || func.name }}
+            </option>
+        </select>
+      </div>
+
+      <div class="form-row mt-3">
+        <div class="form-group">
+          <label>Data Início</label>
+          <input type="date" 
+                 name="dataInicio"
+                 class="input-field" 
+                 [(ngModel)]="novasFerias.dataInicio" 
+                 (change)="calcularRetorno()">
+        </div>
+        <div class="form-group">
+          <label>Qtd. Dias</label>
+          <input type="number" 
+                 name="dias"
+                 class="input-field" 
+                 [(ngModel)]="novasFerias.dias" 
+                 min="5" 
+                 max="30" 
+                 (change)="calcularRetorno()">
+        </div>
+      </div>
+
+      <div class="checkbox-group">
+        <input type="checkbox" 
+               id="abono" 
+               name="venderUmTerco"
+               [(ngModel)]="novasFerias.venderUmTerco">
+        <label for="abono">Vender 1/3 (Abono Pecuniário)</label>
+      </div>
+
+      <div class="info-box">
+        <span class="material-icons">event_available</span>
+        <p>Previsão de Término: <strong>{{ previsaoRetorno }}</strong></p>
+      </div>
+      
+      <div class="info-box warning" *ngIf="novasFerias.venderUmTerco">
+        <span class="material-icons">monetization_on</span>
+        <p>O funcionário venderá dias das férias. Verifique se o saldo restante atende à legislação.</p>
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="fecharModal()">Cancelar</button>
+      <button class="btn-save" (click)="salvarFerias()" [disabled]="isSaving">
+        {{ isSaving ? 'Salvando...' : 'Confirmar Programação' }}
+      </button>
+    </div>
+  </div>
+</div>

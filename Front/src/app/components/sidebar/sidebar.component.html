@@ -1,0 +1,115 @@
+<nav class="sidebar" [class.collapsed]="isCollapsed">
+  
+  <div class="sidebar-header">
+    <div class="logo-wrapper">
+      <div class="logo-icon"><i class="material-icons">fingerprint</i></div>
+      <span class="logo-text">Ponto Eletrônico</span>
+    </div>
+    <button class="toggle-btn" (click)="toggleSidebar()">
+      <span class="material-icons">{{ isCollapsed ? 'chevron_right' : 'chevron_left' }}</span>
+    </button>
+  </div>
+
+  <ul class="nav-list">
+    
+    <li *ngIf="isAdmin">
+      <a routerLink="/home" routerLinkActive="active" title="Página Inicial">
+        <i class="material-icons">dashboard</i>
+        <span class="link-name">Página Inicial</span>
+      </a>
+    </li>
+
+    <li class="section-title" *ngIf="!isCollapsed">MEU PONTO</li>
+
+    <li>
+      <a routerLink="/registrar-ponto" routerLinkActive="active" title="Registrar Ponto">
+        <i class="material-icons">fingerprint</i>
+        <span class="link-name">Registrar Ponto</span>
+      </a>
+    </li>
+
+    <li>
+      <a routerLink="/espelho-ponto" routerLinkActive="active" title="Meu Espelho">
+        <i class="material-icons">calendar_today</i>
+        <span class="link-name">Meu Espelho</span>
+      </a>
+    </li>
+
+    <li>
+      <a routerLink="/solicitar-ajuste" routerLinkActive="active" title="Solicitar Ajuste">
+        <i class="material-icons">edit_note</i>
+        <span class="link-name">Solicitar Ajuste</span>
+      </a>
+    </li>
+
+    <li class="section-title" *ngIf="!isCollapsed && isAdmin">GESTÃO</li>
+
+    <li *ngIf="isAdmin">
+      <a routerLink="/colaboradores" routerLinkActive="active" title="Colaboradores">
+        <i class="material-icons">people</i>
+        <span class="link-name">Colaboradores</span>
+      </a>
+    </li>
+
+    <li *ngIf="isAdmin">
+      <a routerLink="/gerenciar-solicitacoes" routerLinkActive="active" title="Aprovações">
+        <i class="material-icons">fact_check</i>
+        <span class="link-name">Aprovações</span>
+      </a>
+    </li>
+
+    <li *ngIf="isAdmin">
+      <a routerLink="/turnos" routerLinkActive="active" title="Turnos e Escalas">
+        <i class="material-icons">schedule</i>
+        <span class="link-name">Turnos e Escalas</span>
+      </a>
+    </li>
+
+    <li *ngIf="isAdmin">
+      <a routerLink="/afastamentos" routerLinkActive="active" title="Afastamentos">
+        <i class="material-icons">add_box</i>
+        <span class="link-name">Afastamentos</span>
+      </a>
+    </li>
+
+    <li *ngIf="isAdmin">
+      <a routerLink="/escala-folgas" routerLinkActive="active" title="Escala de Folgas">
+        <i class="material-icons">event_busy</i>
+        <span class="link-name">Escala de Folgas</span>
+      </a>
+    </li>
+
+    <li *ngIf="isAdmin">
+      <a routerLink="/ferias" routerLinkActive="active" title="Férias">
+        <i class="material-icons">beach_access</i>
+        <span class="link-name">Férias</span>
+      </a>
+    </li>
+
+    <li class="submenu-wrapper" [class.open]="isSubmenuOpen" *ngIf="isAdmin">
+      <div class="submenu-head" (click)="toggleSubmenu()" title="Relatórios">
+        <div class="head-content">
+          <i class="material-icons">bar_chart</i>
+          <span class="link-name">Relatórios</span>
+        </div>
+        <i class="material-icons arrow" *ngIf="!isCollapsed">expand_more</i>
+      </div>
+      
+      <ul class="sub-menu-list">
+        <li><a routerLink="/relatorios/espelho">Relat. de Ponto</a></li>
+        <li><a routerLink="/relatorios/afastamentos">Relat. Afastamentos</a></li>
+        <li><a routerLink="/relatorios/escalas">Relat. Escalas</a></li>
+        <li><a routerLink="/relatorios/ferias">Relat. Férias</a></li>
+        <li><a routerLink="/relatorios/banco-horas">Banco de Horas</a></li>
+      </ul>
+    </li>
+
+  </ul>
+
+  <div class="sidebar-footer">
+    <a (click)="logout()" title="Sair do Sistema" class="logout-link">
+      <i class="material-icons">logout</i>
+      <span class="link-name">Sair do Sistema</span>
+    </a>
+  </div>
+</nav>

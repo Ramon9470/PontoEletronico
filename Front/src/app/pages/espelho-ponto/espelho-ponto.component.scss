@@ -1,0 +1,315 @@
+/* Container Geral */
+.mirror-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  font-family: 'Roboto', sans-serif;
+  color: #4a5568;
+  /* Esse overflow permite rolar na tela, mas vamos anular ele na impressão */
+  overflow-x: auto; 
+  padding-bottom: 20px;
+}
+
+/* ================= UTILITY BAR ================= */
+.utility-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-width: 1200px; 
+  padding: 0 5px;
+  margin-bottom: 5px; 
+}
+
+.left-utils, .right-utils {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+/* --- ESTILO DA BUSCA (RECUPERADO) --- */
+.search-box {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  padding: 4px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+}
+
+.search-box input {
+  border: none;
+  outline: none;
+  font-size: 13px;
+  color: #4a5568;
+  width: 150px; /* Largura fixa para não quebrar */
+}
+
+.search-box span {
+  font-size: 18px;
+  color: #a0aec0;
+}
+/* ------------------------------------ */
+
+/* Botões Limpos */
+.btn-clean {
+  background: transparent;
+  border: none;
+  color: #5a67d8;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+.btn-clean:hover { background: #ebf4ff; }
+.btn-clean span { font-size: 20px; } 
+
+.collab-count {
+  font-size: 13px;
+  color: #718096;
+}
+
+/* ================= PAINEL SUPERIOR (RESUMO) ================= */
+.dashboard-panel {
+  display: flex;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  min-width: 1200px; 
+  height: 100px;
+  align-items: center;
+}
+
+.vertical-divider { width: 1px; height: 60%; background-color: #e2e8f0; }
+
+.profile-section { flex: 0 0 350px; padding: 0 25px; display: flex; align-items: center; justify-content: space-between; }
+.profile-content { display: flex; align-items: center; gap: 15px; }
+.profile-img { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; }
+.profile-info h3 { margin: 0; font-size: 15px; color: #1a202c; font-weight: 700; display: flex; align-items: center; gap: 5px; }
+.profile-info p { margin: 2px 0; font-size: 12px; color: #718096; }
+.badge-id { font-size: 11px; color: #a0aec0; }
+
+.chart-section { flex: 1; padding: 0 30px; display: flex; align-items: center; gap: 30px; }
+.company-brand strong { color: #5a67d8; font-size: 16px; display: block; }
+.company-brand span { color: #718096; font-size: 12px; }
+
+.stats-section { flex: 0 0 200px; padding: 0 30px; }
+.stats-label { font-size: 10px; color: #a0aec0; text-transform: uppercase; display: block;}
+.stats-sub { font-size: 11px; color: #718096; display: block; margin-bottom: 2px;}
+.stats-value { font-size: 24px; color: #5a67d8; font-weight: 600; }
+.stats-total { font-size: 18px; color: #cbd5e0; font-weight: 400; }
+
+.extras-section { flex: 0 0 250px; padding: 0 30px; display: flex; gap: 20px; }
+.extra-box { display: flex; align-items: center; gap: 10px; }
+.extra-icon { font-size: 28px; }
+.sun { color: #5a67d8; } 
+.extra-info span { display: block; font-size: 10px; color: #a0aec0; text-transform: uppercase;}
+.extra-info strong { display: block; font-size: 18px; color: #2d3748; font-weight: 500; }
+
+/* ================= TOOLBAR ================= */
+.toolbar-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  min-width: 1200px;
+}
+
+.left-tools { display: flex; align-items: center; gap: 20px; }
+.date-nav { display: flex; align-items: center; gap: 10px; color: #2d3748; font-weight: 600; font-size: 14px;}
+.btn-nav { border: none; background: transparent; color: #5a67d8; cursor: pointer; display: flex;}
+
+.btn-action {
+  display: flex; align-items: center; gap: 8px;
+  background: white; border: 1px solid #e2e8f0;
+  padding: 6px 12px; border-radius: 4px;
+  color: #4a5568; font-size: 13px; cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-action:hover { background: #f7fafc; border-color: #cbd5e0; }
+
+.right-tools { display: flex; align-items: center; gap: 15px; }
+.warning-msg { color: #e53e3e; font-size: 12px; display: flex; align-items: center; gap: 5px; }
+.btn-cancel { background: white; border: 1px solid #cbd5e0; color: #718096; padding: 7px 15px; border-radius: 4px; cursor: pointer; font-size: 13px; }
+.btn-save { background: #5a67d8; border: none; color: white; padding: 7px 20px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 500; }
+.btn-save:hover { background: #4c51bf; }
+
+/* ================= TABELA ================= */
+.table-container {
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  min-width: 1200px;
+}
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { background: white; color: #2d3748; font-weight: 700; padding: 15px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+td { padding: 12px 15px; border-bottom: 1px solid #edf2f7; color: #4a5568; }
+.center { text-align: center; }
+
+/* Status Colors */
+.status-icon { font-size: 18px; }
+.text-red { color: #e53e3e; }
+.text-green { color: #38a169; }
+.text-orange { color: #dd6b20; }
+.text-blue { color: #5a67d8; }
+.bg-light { background: #f7fafc; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+.edit-btn { color: #7f9cf5; cursor: pointer; }
+
+/* ================= IMPRESSÃO CORRIGIDA ================= */
+@media print {
+  /* 1. Reset Global de Impressão */
+  html, body {
+    height: auto !important;
+    overflow: visible !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+  }
+
+  /* 2. Esconde tudo que não interessa */
+  body * {
+    visibility: hidden;
+  }
+
+  /* 3. Mostra o espelho e seus filhos */
+  .mirror-container, .mirror-container * {
+    visibility: visible;
+  }
+
+  /* 4. Ajuste CRÍTICO do Container Principal */
+  .mirror-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 10px !important;
+    background: white;
+    
+    /* AQUI ESTÁ A MÁGICA: Removemos o scroll e deixamos crescer */
+    overflow: visible !important; 
+    display: block !important;
+    height: auto !important;
+    min-width: 0 !important; /* Remove largura forçada */
+  }
+
+  /* 5. Esconde botões e barras de navegação */
+  .utility-bar, .btn-nav, .btn-action, .nav-arrow, .toolbar-section .left-tools button, .right-tools {
+    display: none !important;
+  }
+
+  /* 6. Ajusta o Painel de Resumo (Foto, Horas) */
+  .dashboard-panel {
+    min-width: 100% !important;
+    width: 100% !important;
+    box-shadow: none !important;
+    border: 1px solid #000 !important; /* Borda preta para sair nítido */
+    margin-bottom: 15px;
+    height: auto !important;
+    padding: 10px 0;
+  }
+
+  /* 7. Ajusta a Tabela para fluir entre páginas */
+  .table-container {
+    min-width: 100% !important;
+    width: 100% !important;
+    border: none !important;
+    overflow: visible !important; /* Permite quebrar página */
+    box-shadow: none !important;
+    display: block !important;
+  }
+
+  table {
+    width: 100% !important;
+    font-size: 11px !important; /* Fonte levemente menor para caber melhor */
+    border: 1px solid #000;
+  }
+
+  th, td {
+    border: 1px solid #ccc !important; /* Bordas nas células */
+    padding: 6px 4px !important;
+    color: #000 !important; /* Força preto puro */
+  }
+  
+  /* Evita quebra dentro de uma linha */
+  tr { page-break-inside: avoid; }
+}
+
+/* --- REGRAS APENAS PARA IMPRESSÃO/PDF --- */
+@media print {
+  
+  // 1. Esconde tudo que não deve sair no papel
+  .utility-bar, 
+  .toolbar-section,
+  .btn-clean, 
+  .btn-nav, 
+  .btn-action,
+  .search-box,
+  .left-tools,
+  .right-tools {
+    display: none !important;
+  }
+
+  // 2. Tenta esconder a Sidebar e o Topbar do Layout Principal
+  // (Usamos ::ng-deep para alcançar elementos fora desse componente)
+  ::ng-deep app-sidebar, 
+  ::ng-deep app-navbar, 
+  ::ng-deep .sidebar, 
+  ::ng-deep .navbar,
+  ::ng-deep nav {
+    display: none !important;
+  }
+
+  // 3. Ajusta o container principal para usar a folha toda
+  .mirror-container {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-shadow: none !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    background: white !important;
+    z-index: 9999; /* Fica por cima de tudo */
+  }
+
+  // 4. O "Pulo do Gato": Remove a rolagem e expande a tabela
+  .dashboard-panel, 
+  .table-container {
+    height: auto !important;     /* Deixa crescer infinitamente */
+    overflow: visible !important; /* Mostra o que estava escondido */
+    display: block !important;    /* Garante comportamento de bloco */
+  }
+
+  // 5. Ajustes finos na Tabela
+  table {
+    width: 100% !important;
+    page-break-inside: auto;
+  }
+
+  thead {
+    display: table-header-group; /* Repete o cabeçalho em cada página */
+  }
+
+  tr {
+    page-break-inside: avoid; /* Evita quebrar uma linha no meio */
+    page-break-after: auto;
+  }
+
+  // Remove cores de fundo para economizar tinta (opcional, mas recomendado)
+  .bg-light {
+    background-color: transparent !important;
+    border: 1px solid #ddd; /* Troca fundo cinza por borda fina */
+  }
+}

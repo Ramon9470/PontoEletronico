@@ -1,0 +1,43 @@
+/* Fonte do Relógio Digital */
+.clock-display {
+  font-size: 3.5rem;
+  font-weight: 300;
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  color: #212529;
+}
+
+/* Timeline Customizada */
+.timeline {
+  padding: 10px 0;
+}
+
+.timeline-item {
+  /* Espaço para garantir que o layout flua bem */
+  min-height: 80px; 
+}
+
+/* O círculo do ícone */
+.timeline-icon {
+  width: 45px;
+  height: 45px;
+  font-size: 1.2rem;
+  z-index: 2; /* Fica acima da linha */
+  position: relative;
+}
+
+/* A linha vertical conectora */
+.timeline-line {
+  position: absolute;
+  left: 22px; /* Metade da largura do ícone (45/2 aprox) */
+  top: 45px; /* Começa logo abaixo do ícone */
+  bottom: 0;
+  width: 2px;
+  background-color: #e9ecef;
+  z-index: 1;
+}
+
+/* Classes utilitárias de cores específicas para as bordas dos ícones */
+.border-success { border-color: #198754 !important; color: #198754; }
+.border-warning { border-color: #ffc107 !important; color: #ffc107; }
+.border-primary { border-color: #0d6efd !important; color: #0d6efd; }
+.border-danger  { border-color: #dc3545 !important; color: #dc3545; }

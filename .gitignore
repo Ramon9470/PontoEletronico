@@ -1,0 +1,16 @@
+# Ignorar pastas de ambiente virtual e cache
+venv/
+__pycache__/
+*.pyc
+
+# Ignorar arquivos de sistema
+.DS_Store
+Thumbs.db
+
+# Ignorar a pasta de dados do Docker
+mysql_data/
+
+*.h5
+*.pkl
+weights/
+.deepface/

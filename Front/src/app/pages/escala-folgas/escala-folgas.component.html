@@ -1,0 +1,149 @@
+<div class="page-container fade-in">
+
+  <div class="header-section">
+    <div class="title-box">
+        <h2><span class="material-icons">event_busy</span> Escala de Folgas</h2>
+        <p>Defina as regras de descanso semanal (6x1, 5x2, 12x36)</p>
+    </div>
+
+    <div class="actions-box">
+      <div class="search-box">
+        <span class="material-icons">search</span>
+        <input type="text" placeholder="Buscar colaborador..." [(ngModel)]="termoBusca" (input)="filtrarEscalas()">
+      </div>
+
+      <button class="btn-primary" (click)="abrirModal()">
+        <span class="material-icons">edit_calendar</span> Definir Escala
+      </button>
+    </div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="card-stat">
+      <div class="icon-box blue"><span class="material-icons">groups</span></div>
+      <div><span class="stat-value">{{ stats.totalColaboradores }}</span><span class="stat-label">Total Colaboradores</span></div>
+    </div>
+    <div class="card-stat">
+      <div class="icon-box green"><span class="material-icons">check_circle</span></div>
+      <div><span class="stat-value">{{ stats.escalasDefinidas }}</span><span class="stat-label">Escalas Definidas</span></div>
+    </div>
+    <div class="card-stat">
+      <div class="icon-box orange"><span class="material-icons">warning</span></div>
+      <div><span class="stat-value">{{ stats.pendentes }}</span><span class="stat-label">Sem Escala (Pendente)</span></div>
+    </div>
+  </div>
+
+  <div class="table-container">
+    <div *ngIf="isLoading" class="loading-state">
+        <div class="spinner"></div>
+        <p>Carregando...</p>
+    </div>
+
+    <table *ngIf="!isLoading">
+      <thead>
+        <tr>
+          <th>Colaborador</th>
+          <th>Tipo de Escala</th>
+          <th>Regra de Folga</th>
+          <th>Início do Ciclo</th>
+          <th>Status</th>
+          <th class="text-end">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let escala of escalasFiltradas">
+          <td>
+            <div class="collab-info">
+               <img [src]="escala.foto_url || 'assets/default-user.png'" 
+                    class="avatar" 
+                    (error)="$any($event.target).src = 'assets/default-user.png'">
+               <div class="text-info">
+                 <strong>{{ escala.nome_completo }}</strong>
+                 <small>{{ escala.cargo }}</small>
+               </div>
+            </div>
+          </td>
+          <td>
+            <span class="type-badge badge-purple">{{ getLabelTipo(escala.tipo_escala) }}</span>
+          </td>
+          <td>{{ escala.regra_folga }}</td>
+          <td>{{ escala.inicio_ciclo | date:'dd/MM/yyyy' }}</td>
+          <td><span class="status-badge status-active">Ativa</span></td>
+          <td class="text-end">
+            <button class="icon-btn delete" (click)="excluirEscala(escala.id)" title="Remover regra">
+                <span class="material-icons">delete</span>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div *ngIf="!isLoading && escalasFiltradas.length === 0" class="empty-state">
+        <span class="material-icons">event_busy</span>
+        <p>Nenhuma escala definida.</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="modal-overlay" *ngIf="isModalOpen">
+  <div class="modal-content animate__animated animate__fadeInDown">
+    <div class="modal-header">
+      <h3>Definir Escala de Trabalho</h3>
+      <button class="close-btn" (click)="fecharModal()"><span class="material-icons">close</span></button>
+    </div>
+
+    <div class="modal-body">
+      
+      <div class="form-group highlight-box">
+        <label class="highlight-label">
+            <span class="material-icons">person</span> Colaborador
+        </label>
+        <select class="input-field" [(ngModel)]="novaEscala.usuarioId">
+            <option value="" disabled selected>Selecione...</option>
+            <option *ngFor="let func of listaFuncionarios" [value]="func.id">{{ func.nome_completo || func.name }}</option>
+        </select>
+      </div>
+
+      <div class="form-row mt-3">
+        <div class="form-group">
+          <label>Modelo de Escala</label>
+          <select class="input-field" [(ngModel)]="novaEscala.tipo">
+            <option value="6x1">6x1 (1 Folga semanal)</option>
+            <option value="5x2">5x2 (Fixo Sáb/Dom)</option>
+            <option value="12x36">12x36 (Plantão)</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label>Início do Ciclo</label>
+          <input type="date" class="input-field" [(ngModel)]="novaEscala.inicioCiclo">
+          <small class="text-muted" style="font-size: 10px;">*Data base para calcular a folga</small>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Regra de Folga</label>
+        <select class="input-field" [(ngModel)]="novaEscala.regraFolga">
+          <option value="Rotativo">Rotativo (Calculado pelo ciclo)</option>
+          <option value="Domingo">Fixa todo Domingo</option>
+          <option value="Sabado">Fixa todo Sábado</option>
+          <option value="SabDom">Sábado e Domingo (Para 5x2)</option>
+        </select>
+      </div>
+      
+      <div class="info-box" style="background: #ebf8ff; color: #2b6cb0; padding: 10px; border-radius: 6px; font-size: 12px; margin-top: 10px; display: flex; gap: 8px; align-items: center;">
+        <span class="material-icons" style="font-size: 18px;">info</span>
+        <p style="margin: 0;">Esta definição automatiza as folgas no espelho de ponto. Caso precise alterar um dia específico, use a tela de "Solicitar Ajuste".</p>
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="fecharModal()">Cancelar</button>
+      <button class="btn-save" (click)="salvarEscala()" [disabled]="isSaving">
+        {{ isSaving ? 'Salvando...' : 'Salvar Escala' }}
+      </button>
+    </div>
+  </div>
+</div>

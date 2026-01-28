@@ -1,0 +1,46 @@
+/* Variáveis devem ser iguais às da Sidebar */
+$sidebar-width: 260px;
+$sidebar-collapsed-width: 78px;
+
+.layout-wrapper {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden; /* Evita rolagem horizontal */
+}
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100vh;
+  
+  /* ESTADO PADRÃO (Sidebar Aberta) */
+  /* Empurra todo o conteúdo (Navbar + Home) para a direita */
+  margin-left: $sidebar-width; 
+  
+  /* A transição DEVE ter o mesmo tempo da sidebar (0.5s) para ficarem sincronizadas */
+  transition: margin-left 0.5s ease; 
+  background-color: #f5f7fa; 
+}
+
+/* ESTADO RECOLHIDO (Quando você clica na setinha) */
+.main-content.expanded {
+  margin-left: $sidebar-collapsed-width;
+}
+
+/* RESPONSIVIDADE (Celular/Tablet) */
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0; /* No celular, a sidebar some, então margem é 0 */
+  }
+  
+  .main-content.expanded {
+    margin-left: 0;
+  }
+}
+
+.content-body {
+  padding: 1.5rem;
+  flex-grow: 1; /* Ocupa o resto da altura */
+}

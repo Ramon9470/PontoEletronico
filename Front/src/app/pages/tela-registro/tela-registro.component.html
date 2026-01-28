@@ -1,0 +1,157 @@
+<div class="container-fluid p-4 fade-in">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h3 class="mb-0 fw-bold text-primary">
+        <i class="material-icons align-middle me-2">person_add</i> 
+        {{ tituloPagina }}
+      </h3>
+      <small class="text-muted">Preencha as informações abaixo</small>
+    </div>
+    <button class="btn btn-outline-secondary d-flex align-items-center" (click)="cancelar()">
+      <i class="material-icons me-1">arrow_back</i> Voltar
+    </button>
+  </div>
+
+  <form #form="ngForm">
+    <div class="row g-4">
+      <div class="col-lg-4">
+        <div class="card border-0 shadow-sm mb-3 text-center p-4">
+          <div class="mb-3">
+             <div class="mx-auto rounded-circle border overflow-hidden d-flex align-items-center justify-content-center bg-light" style="width: 150px; height: 150px;">
+                <img *ngIf="fotoPreview" [src]="fotoPreview" class="w-100 h-100 object-fit-cover" (error)="usarImagemPadrao($event)">
+                <span *ngIf="!fotoPreview" class="fs-1 text-muted">{{ funcionario.nome?.charAt(0) || '?' }}</span>
+             </div>
+          </div>
+          <label class="btn btn-sm btn-outline-primary position-relative">
+            <i class="material-icons align-middle fs-6">photo_camera</i> Alterar Foto
+            <input type="file" (change)="onFileSelected($event)" accept="image/*" hidden />
+          </label>
+        </div>
+
+        <div class="card border-0 shadow-sm p-4">
+          <h5 class="fw-bold mb-3 border-bottom pb-2">Acesso ao Sistema</h5>
+          
+          <div class="mb-3">
+            <label class="form-label">Situação</label>
+            <select class="form-select" [(ngModel)]="funcionario.status" name="status">
+                <option value="Ativo">Ativo (Acesso Liberado)</option>
+                <option value="Inativo">Inativo (Bloqueado)</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Usuário (Login) <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" [(ngModel)]="funcionario.usuario" name="usuario" required placeholder="Ex: joao.silva" />
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Senha <span class="text-danger" *ngIf="!isEditing">*</span></label>
+            <input type="password" class="form-control" [(ngModel)]="funcionario.senha" name="senha" 
+                   [placeholder]="isEditing ? 'Deixe vazio para manter' : 'Mínimo 6 dígitos'" />
+          </div>
+
+          <div class="mb-0">
+            <label class="form-label">Perfil de Acesso <span class="text-danger">*</span></label>
+            <select class="form-select" [(ngModel)]="funcionario.perfil" name="perfil">
+              <option value="funcionario">Funcionário</option>
+              <option value="admin">Administrador</option>
+              <option value="rh">RH / Gestor</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-8">
+        <div class="card border-0 shadow-sm p-4">
+          <h5 class="fw-bold mb-4 border-bottom pb-2">Informações Pessoais</h5>
+          <div class="row g-3">
+            <div class="col-md-8">
+              <label class="form-label">Nome Completo <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" [(ngModel)]="funcionario.nome" name="nome" required />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">E-mail <span class="text-danger">*</span></label>
+              <input type="email" class="form-control" [(ngModel)]="funcionario.email" name="email" required />
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Cargo</label>
+              <input type="text" class="form-control" [(ngModel)]="funcionario.cargo" name="cargo" />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Departamento</label>
+              <input type="text" class="form-control" [(ngModel)]="funcionario.departamento" name="departamento" />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">CPF</label>
+              <input type="text" class="form-control" [(ngModel)]="funcionario.cpf" name="cpf" />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">CTPS</label>
+              <input type="text" class="form-control" [(ngModel)]="funcionario.ctps" name="ctps" />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Gênero</label>
+              <select class="form-select" [(ngModel)]="funcionario.genero" name="genero">
+                <option value="Masculino">Masculino</option>
+                <option value="Feminino">Feminino</option>
+                <option value="Outro">Outro</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">WhatsApp</label>
+              <input type="text" class="form-control" [(ngModel)]="funcionario.whatsapp" name="whatsapp" />
+            </div>
+
+            <hr class="my-4 text-muted" />
+
+            <h5 class="fw-bold mb-2">Endereço</h5>
+            <div class="row g-3">
+              <div class="col-md-3">
+                <label class="form-label">CEP</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" [(ngModel)]="funcionario.cep" name="cep" (blur)="buscarCep()" maxlength="9">
+                    <span class="input-group-text bg-light"><i class="material-icons fs-6">search</i></span>
+                </div>
+              </div>
+              <div class="col-md-7">
+                <label class="form-label">Logradouro</label>
+                <input type="text" class="form-control" [(ngModel)]="funcionario.endereco" name="endereco" />
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Nº</label>
+                <input type="text" class="form-control" [(ngModel)]="funcionario.numero" name="numero" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Bairro</label>
+                <input type="text" class="form-control" [(ngModel)]="funcionario.bairro" name="bairro" />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Cidade</label>
+                <input type="text" class="form-control" [(ngModel)]="funcionario.cidade" name="cidade" />
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">UF</label>
+                <input type="text" class="form-control" [(ngModel)]="funcionario.uf" name="uf" maxlength="2" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-end gap-2 mt-4 pb-5">
+      <button type="button" class="btn btn-light border px-4" (click)="cancelar()">Cancelar</button>
+      
+      <button
+        type="button"
+        class="btn btn-primary px-5 fw-bold d-flex align-items-center"
+        (click)="salvar()"
+        [disabled]="isLoading"
+      >
+        <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+        {{ isEditing ? 'Atualizar Dados' : 'Finalizar Cadastro' }}
+      </button>
+    </div>
+  </form>
+</div>

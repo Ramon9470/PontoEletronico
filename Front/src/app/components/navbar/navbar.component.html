@@ -1,0 +1,62 @@
+<nav class="navbar navbar-expand-lg bg-white border-bottom py-2 px-4 shadow-sm">
+  <div class="container-fluid p-0">
+
+    <div class="d-none d-md-block">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0">
+          <li class="breadcrumb-item text-muted">Home</li>
+          <li class="breadcrumb-item active fw-bold" aria-current="page">Visão Geral</li>
+        </ol>
+      </nav>
+    </div>
+
+    <div class="ms-auto d-flex align-items-center gap-3">
+      
+      <button class="btn btn-light position-relative rounded-circle p-2 border-0">
+        <i class="bi bi-bell fs-5"></i>
+        <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
+      </button>
+
+      <div class="border-start mx-2" style="height: 25px;"></div>
+
+      <div class="dropdown position-relative"> <a class="d-flex align-items-center gap-2 text-decoration-none cursor-pointer" 
+           (click)="toggleUserMenu()" role="button">
+          
+          <div class="text-end lh-1 d-none d-sm-block">
+            <div class="fw-bold text-dark" style="font-size: 0.9rem;">{{ userName }}</div>
+            <small class="text-muted text-uppercase" style="font-size: 0.7rem;">{{ userRole }}</small>
+          </div>
+          
+          <div class="user-avatar-wrapper">
+             <img *ngIf="userPhoto" [src]="userPhoto" class="rounded-circle border" alt="Perfil">
+             <div *ngIf="!userPhoto" class="initials-avatar rounded-circle bg-primary text-white">
+                {{ userName.charAt(0).toUpperCase() }}
+             </div>
+          </div>
+        </a>
+
+        <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2 position-absolute end-0" 
+            [class.show]="isUserMenuOpen" 
+            style="min-width: 200px; z-index: 1050;">
+          
+          <li class="px-3 py-2 d-sm-none">
+             <strong>{{ userName }}</strong><br>
+             <small>{{ userRole }}</small>
+          </li>
+          <li><hr class="dropdown-divider d-sm-none"></li>
+          
+          <li>
+            <button class="dropdown-item text-danger d-flex align-items-center gap-2" (click)="logout()">
+              <i class="bi bi-box-arrow-right"></i> Sair do Sistema
+            </button>
+          </li>
+        </ul>
+
+        <div *ngIf="isUserMenuOpen" 
+             (click)="toggleUserMenu()" 
+             style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1049;"></div>
+      </div>
+
+    </div>
+  </div>
+</nav>

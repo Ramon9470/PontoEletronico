@@ -1,0 +1,29 @@
+.navbar {
+  height: 70px; /* Altura fixa */
+  background: #fff;
+}
+
+.user-avatar-wrapper {
+  width: 40px;
+  height: 40px;
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .initials-avatar {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.2rem;
+  }
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
