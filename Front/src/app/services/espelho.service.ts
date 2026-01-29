@@ -8,7 +8,7 @@ import { Observable } from 'rxjs';
 export class EspelhoPontoService {
   
   private http = inject(HttpClient);
-  private apiUrl = 'https://localhost/api'; 
+  private apiUrl = '/api'; 
 
   constructor() { }
 

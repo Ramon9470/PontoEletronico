@@ -7,8 +7,8 @@ import { Observable } from 'rxjs';
 })
 export class RelatorioService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost/api/reports'; 
-  private usersUrl = 'https://localhost/api/users';
+  private apiUrl = '/api/reports'; 
+  private usersUrl = '/api/users';
   
   // Baixa o HTML do relatório autenticado
   gerarEspelhoHtml(funcionarioId: string, inicio: string, fim: string): Observable<string> {

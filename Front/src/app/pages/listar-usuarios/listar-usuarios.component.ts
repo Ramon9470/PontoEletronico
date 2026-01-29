@@ -51,7 +51,7 @@ export class ListarUsuariosComponent implements OnInit {
              }
              
              if (!url.startsWith('http')) {
-                 url = `https://localhost/storage/${url}`;
+                 url = `/storage/${url}`;
              }
              else if (url.startsWith('http:')) {
                  url = url.replace('http:', 'https:');

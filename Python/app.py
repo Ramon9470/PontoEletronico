@@ -44,7 +44,7 @@ def reconhecer():
         # Busca usuários no banco
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT id, nome_completo, face_encoding FROM users WHERE active = 1 AND face_encoding IS NOT NULL")
+        cursor.execute("SELECT id, name, face_encoding FROM users WHERE active = 1 AND face_encoding IS NOT NULL")
         usuarios = cursor.fetchall()
         cursor.close()
         conn.close()
@@ -69,13 +69,13 @@ def reconhecer():
                 # Calcula a distância
                 distancia = face_recognition.face_distance([db_numpy], webcam_encoding)[0]
                 
-                print(f"User: {user['nome_completo']} | Dist: {distancia:.4f}")
+                print(f"User: {user['name']} | Dist: {distancia:.4f}")
 
                 if distancia < TOLERANCIA and distancia < menor_distancia:
                     menor_distancia = distancia
                     melhor_match = {
                         "usuario_id": user['id'],
-                        "nome": user['nome_completo'],
+                        "nome": user['name'],
                         "confianca": f"{((1-distancia)*100):.2f}%"
                     }
 

@@ -99,7 +99,7 @@ export class TelaRegistroComponent implements OnInit {
              if (url.startsWith('http:')) {
                  url = url.replace('http:', 'https:');
              } else if (!url.startsWith('http')) {
-                 url = `https://localhost/storage/${url}`;
+                 url = `/storage/${url}`;
              }
 
              this.fotoPreview = url;

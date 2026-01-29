@@ -17,12 +17,19 @@ class RegistroPontoController extends Controller
     public function getPontosHoje(Request $request)
     {        
         $hoje = Carbon::now('America/Sao_Paulo')->toDateString();
+	$user = auth()->user();
+
+	$query = RegistroPonto::with('usuario')->where('data_registro', $hoje);
+	
+	if ($user->role !== 'admin' && $user->role !== 'gestor'){
+		$query->where('usuario_id', $user->id);
+	}
         
         // Retorna os últimos 10 registros do dia para feedback visual na tela de ponto
         $pontos = RegistroPonto::with('usuario')
             ->where('data_registro', $hoje)
             ->orderBy('hora_registro', 'desc')
-            ->take(10)
+            ->take(20)
             ->get();
             
         // Formata para o frontend
@@ -91,34 +98,54 @@ class RegistroPontoController extends Controller
      */
     private function salvarPonto($userId, $nomeUsuario, $metodo)
     {
-        $user = User::with('escala')->find($userId);
-        if (!$user) return response()->json(['message' => 'Usuário não encontrado.'], 404);
+        // Quem está logado no sistema?
+        $usuarioLogado = auth()->user();
+
+        // Se o logado for ADMIN ou RH, permitimos para testes ou registro manual supervisionado
+        if ($usuarioLogado && $usuarioLogado->id != $userIdDaIA) {
+             if ($usuarioLogado->role !== 'admin' && $usuarioLogado->role !== 'gestor') {
+                 return response()->json([
+                     'message' => "Atenção: A biometria reconheceu {$nomeUsuario}, mas o usuário logado é diferente."
+                 ], 403);
+             }
+        }
+
+        $user = User::with('escala')->find($userIdDaIA);
+        if (!$user) return response()->json(['message' => 'Usuário reconhecido não encontrado no banco.'], 404);
 
         $agora = Carbon::now('America/Sao_Paulo');
         $hoje = $agora->toDateString();
         
-        // Limite de batidas da escala ou padrão 4
-        $limitePontos = $user->escala ? $user->escala->limite_batidas : 4;
-        
-        $qtdHoje = RegistroPonto::where('usuario_id', $userId)
-            ->where('data_registro', $hoje)
-            ->count();
-
-        if ($qtdHoje >= $limitePontos) {
-            return response()->json(['message' => "Sr(a). {$nomeUsuario}, limite diário atingido."], 400);
-        }
-
-        // Regra de 5 Minutos
-        $ultimoPonto = RegistroPonto::where('usuario_id', $userId)
+        // 2. Correção da Regra de 5 Minutos
+        $ultimoPonto = RegistroPonto::where('usuario_id', $userIdDaIA)
             ->where('data_registro', $hoje)
             ->orderBy('hora_registro', 'desc')
             ->first();
 
         if ($ultimoPonto) {
-            $ultimaDataHora = Carbon::parse($ultimoPonto->data_registro . ' ' . $ultimoPonto->hora_registro);
-            if ($ultimaDataHora->diffInMinutes($agora) < 5) {
-                return response()->json(['message' => "Sr(a). {$nomeUsuario}, aguarde 5 minutos entre registros."], 429);
+            // Cria um objeto Carbon confiável com a Data HOJE + Hora do Registro Anterior
+            $dataHoraUltimo = Carbon::createFromFormat('Y-m-d H:i:s', $ultimoPonto->data_registro . ' ' . $ultimoPonto->hora_registro, 'America/Sao_Paulo');
+            
+            // Diferença absoluta em minutos
+            $diffMinutos = $dataHoraUltimo->diffInMinutes($agora);
+
+            if ($diffMinutos < 5) {
+                $tempoRestante = 5 - $diffMinutos;
+                return response()->json([
+                    'message' => "Aguarde {$tempoRestante} minutos para registrar novamente."
+                ], 429); // Código HTTP 429 = Too Many Requests
             }
+        }
+
+        // Limite de batidas da escala ou padrão 4
+        $limitePontos = $user->escala ? $user->escala->limite_batidas : 4;
+        
+        $qtdHoje = RegistroPonto::where('usuario_id', $userIdDaIA)
+            ->where('data_registro', $hoje)
+            ->count();
+
+        if ($qtdHoje >= $limitePontos) {
+            return response()->json(['message' => "Sr(a). {$nomeUsuario}, limite diário atingido."], 400);
         }
 
         // Define Tipo de Registro Dinamicamente
@@ -129,7 +156,7 @@ class RegistroPontoController extends Controller
         $tipoRegistro = $tipos[$qtdHoje] ?? 'Extra';
 
         RegistroPonto::create([
-            'usuario_id' => $userId,
+            'usuario_id' => $userIdDaIA,
             'data_registro' => $hoje,
             'hora_registro' => $agora->toTimeString(),
             'tipo_registro' => $tipoRegistro,

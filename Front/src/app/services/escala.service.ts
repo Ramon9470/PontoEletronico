@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 })
 export class EscalaService {
   private http = inject(HttpClient);
-  private apiUrl = 'https://localhost/api/escalas';
+  private apiUrl = '/api/escalas';
 
   listar(): Observable<any[]> {
     return this.http.get<any[]>(this.apiUrl);

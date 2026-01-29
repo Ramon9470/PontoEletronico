@@ -49,14 +49,22 @@ export class RegistrarPontoComponent implements OnInit, OnDestroy {
 
   history: PointRecord[] = [];
   private clockInterval: any;
+  private updateInterval: any;
 
   ngOnInit(): void {
     this.startClock();
     this.loadHistory();
+
+    this.updateInterval = setInterval(() => {
+       if (!this.isCameraOpen && !this.isLoading){
+	 this.loadHistory();
+       }
+    }, 500);
   }
 
   ngOnDestroy(): void {
     if (this.clockInterval) clearInterval(this.clockInterval);
+    if (this.updateInterval) clearInterval(this.updateInterval);
   }
 
   startClock() {

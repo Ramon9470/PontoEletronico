@@ -8,7 +8,7 @@ import { Observable } from 'rxjs';
 export class TurnoService {
   
   private http = inject(HttpClient);
-  private apiUrl = 'https://localhost/api/turnos'; 
+  private apiUrl = '/api/turnos'; 
 
   constructor() { }
 

@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 })
 export class FeriasService {
   private http = inject(HttpClient);
-  private apiUrl = 'https://localhost/api/ferias';
+  private apiUrl = '/api/ferias';
 
   listar(): Observable<any[]> {
     return this.http.get<any[]>(this.apiUrl);

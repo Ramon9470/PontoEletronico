@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 })
 export class AfastamentoService {
   private http = inject(HttpClient);
-  private apiUrl = 'https://localhost/api/afastamentos';
+  private apiUrl = '/api/afastamentos';
 
   listar(): Observable<any[]> {
     return this.http.get<any[]>(this.apiUrl);
