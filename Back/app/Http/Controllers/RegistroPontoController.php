@@ -15,19 +15,14 @@ class RegistroPontoController extends Controller
      * Lista os pontos batidos hoje pelo usuário logado.
      */
     public function getPontosHoje(Request $request)
-    {        
+    {       
         $hoje = Carbon::now('America/Sao_Paulo')->toDateString();
-	$user = auth()->user();
-
-	$query = RegistroPonto::with('usuario')->where('data_registro', $hoje);
-	
-	if ($user->role !== 'admin' && $user->role !== 'gestor'){
-		$query->where('usuario_id', $user->id);
-	}
+        $user = auth()->user();
         
-        // Retorna os últimos 10 registros do dia para feedback visual na tela de ponto
+        // Retorna os últimos 20 registros do dia para feedback visual na tela de ponto
         $pontos = RegistroPonto::with('usuario')
             ->where('data_registro', $hoje)
+	    ->where('usuario_id', $user->id)
             ->orderBy('hora_registro', 'desc')
             ->take(20)
             ->get();
@@ -101,8 +96,7 @@ class RegistroPontoController extends Controller
         // Quem está logado no sistema?
         $usuarioLogado = auth()->user();
 
-        // Se o logado for ADMIN ou RH, permitimos para testes ou registro manual supervisionado
-        if ($usuarioLogado && $usuarioLogado->id != $userIdDaIA) {
+        if ($usuarioLogado && $usuarioLogado->id != $userId) {
              if ($usuarioLogado->role !== 'admin' && $usuarioLogado->role !== 'gestor') {
                  return response()->json([
                      'message' => "Atenção: A biometria reconheceu {$nomeUsuario}, mas o usuário logado é diferente."
@@ -110,14 +104,14 @@ class RegistroPontoController extends Controller
              }
         }
 
-        $user = User::with('escala')->find($userIdDaIA);
+        $user = User::with('escala')->find($userId);
         if (!$user) return response()->json(['message' => 'Usuário reconhecido não encontrado no banco.'], 404);
 
         $agora = Carbon::now('America/Sao_Paulo');
         $hoje = $agora->toDateString();
         
-        // 2. Correção da Regra de 5 Minutos
-        $ultimoPonto = RegistroPonto::where('usuario_id', $userIdDaIA)
+        // Regra de 5 Minutos
+        $ultimoPonto = RegistroPonto::where('usuario_id', $userId)
             ->where('data_registro', $hoje)
             ->orderBy('hora_registro', 'desc')
             ->first();
@@ -140,7 +134,7 @@ class RegistroPontoController extends Controller
         // Limite de batidas da escala ou padrão 4
         $limitePontos = $user->escala ? $user->escala->limite_batidas : 4;
         
-        $qtdHoje = RegistroPonto::where('usuario_id', $userIdDaIA)
+        $qtdHoje = RegistroPonto::where('usuario_id', $userId)
             ->where('data_registro', $hoje)
             ->count();
 
@@ -156,7 +150,7 @@ class RegistroPontoController extends Controller
         $tipoRegistro = $tipos[$qtdHoje] ?? 'Extra';
 
         RegistroPonto::create([
-            'usuario_id' => $userIdDaIA,
+            'usuario_id' => $userId,
             'data_registro' => $hoje,
             'hora_registro' => $agora->toTimeString(),
             'tipo_registro' => $tipoRegistro,

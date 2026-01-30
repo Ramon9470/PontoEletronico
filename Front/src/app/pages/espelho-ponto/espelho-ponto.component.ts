@@ -1,9 +1,9 @@
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
+import { EspelhoPontoService } from '../../services/espelho.service';
 
 @Component({
   selector: 'app-espelho-ponto',
@@ -14,13 +14,11 @@ import { UserService } from '../../services/user.service';
 })
 export class EspelhoPonto implements OnInit {
   
-  private http = inject(HttpClient);
+  // Injeção de dependências
+  private espelhoService = inject(EspelhoPontoService);
   private authService = inject(AuthService);
   private userService = inject(UserService);
   private cdr = inject(ChangeDetectorRef);
-
-  // URL correta (HTTPS padrão)
-  private apiUrl = 'https://localhost/api/espelho-ponto';
 
   currentDate = new Date();
   selectedMonth = this.currentDate.getMonth() + 1; 
@@ -38,10 +36,13 @@ export class EspelhoPonto implements OnInit {
 
   ngOnInit() {
     this.checkPermissions();
+    
+    // Se não for admin, pega o ID do usuário logado para carregar o próprio
     const currentUser = this.authService.getUser();
     if (currentUser) {
       this.targetUserId = currentUser.id;
     }
+    
     this.atualizarRotulo();
     this.carregarEspelho();
   }
@@ -49,15 +50,17 @@ export class EspelhoPonto implements OnInit {
   checkPermissions() {
     const user = this.authService.getUser();
     const perfil = (user?.role || '').toLowerCase();
-    this.canEdit = ['admin', 'rh'].includes(perfil);
+    this.canEdit = ['admin', 'rh', 'gestor'].includes(perfil);
   }
 
   buscarColaborador() {
+    if (!this.canEdit) return; 
     if (!this.searchTerm.trim()) return;
 
     this.userService.getAll().subscribe({
       next: (users) => {
         const term = this.searchTerm.toLowerCase();
+        // Busca flexível por ID ou Nome
         const found = users.find((u: any) => 
           (u.name && u.name.toLowerCase().includes(term)) || 
           (u.nome_completo && u.nome_completo.toLowerCase().includes(term)) ||
@@ -72,54 +75,40 @@ export class EspelhoPonto implements OnInit {
           alert('Colaborador não encontrado.');
         }
       },
-      error: (err) => console.error('Erro na busca:', err)
+      error: (err) => console.error('Erro na busca de usuários:', err)
     });
   }
 
   carregarEspelho() {
-    if (!this.targetUserId) return;
     this.isLoading = true;
 
-    const url = `${this.apiUrl}?user_id=${this.targetUserId}&mes=${this.selectedMonth}&ano=${this.selectedYear}`;
+    // Chama o Service em vez de fazer HTTP direto
+    this.espelhoService.consultarEspelho(this.targetUserId, this.selectedMonth, this.selectedYear)
+      .subscribe({
+        next: (data) => {
+          if (data.collaborator) {
+               this.collaborator = data.collaborator;
+               
+               if (this.collaborator.photo && !this.collaborator.photo.startsWith('http')) {
+                   const baseUrl = window.location.origin;
+                   this.collaborator.photo = `${baseUrl}/${this.collaborator.photo}`;
+               }
+          }
+          
+          if (data.summary) this.summary = data.summary;
+          if (data.records) this.pontoRecords = data.records;
 
-    this.http.get<any>(url).subscribe({
-      next: (data) => {
-        if (data.collaborator) {
-             this.collaborator = data.collaborator;
-             
-             // --- LÓGICA DE FOTO CORRIGIDA ---
-             // Removemos o código que forçava a porta 8000.
-             // Agora confiamos no link que vem do backend (APP_URL=https://localhost)
-             if (this.collaborator.photo) {
-                 // Se por acaso vier :8000 antigo, removemos
-                 if (this.collaborator.photo.includes(':8000')) {
-                     this.collaborator.photo = this.collaborator.photo.replace(':8000', '');
-                 }
-                 // Se vier http inseguro, forçamos https
-                 if (this.collaborator.photo.startsWith('http:')) {
-                    this.collaborator.photo = this.collaborator.photo.replace('http:', 'https:');
-                 }
-                 // Se vier caminho relativo (ex: fotos_perfil/foto.jpg), montamos a URL segura
-                 else if (!this.collaborator.photo.startsWith('http')) {
-                     this.collaborator.photo = `https://localhost/storage/${this.collaborator.photo}`;
-                 }
-             }
-        }
-        if (data.summary) this.summary = data.summary;
-        if (data.records) this.pontoRecords = data.records;
-
-        this.isLoading = false;
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-          console.error('Erro detalhado:', err);
-          // Mostra mensagem amigável ao usuário
-          this.collaborator.name = 'Erro ao carregar dados';
-          this.pontoRecords = []; // Limpa tabela para não confundir
           this.isLoading = false;
           this.cdr.detectChanges();
-      }
-    });
+        },
+        error: (err) => {
+            console.error('Erro ao carregar espelho:', err);
+            this.collaborator.name = 'Não foi possível carregar';
+            this.pontoRecords = [];
+            this.isLoading = false;
+            this.cdr.detectChanges();
+        }
+      });
   }
 
   mesAnterior() {
@@ -151,9 +140,20 @@ export class EspelhoPonto implements OnInit {
   }
 
   imprimir() { window.print(); }
-  exportarPDF() { window.print(); }
-  salvarAcoes() { alert('Salvo!'); }
-  cancelarAcoes() { this.carregarEspelho(); }
+  
+  exportarPDF() { 
+      // Futura implementação real de PDF
+      window.print(); 
+  }
+
+  salvarAcoes() { 
+    alert('Edições salvas com sucesso!');
+    this.carregarEspelho(); 
+  }
+
+  cancelarAcoes() { 
+    this.carregarEspelho(); 
+  }
 
   getStatusColor(status: string): string {
     switch(status) {

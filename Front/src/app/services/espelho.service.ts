@@ -15,7 +15,12 @@ export class EspelhoPontoService {
   /**
    * Busca os dados do espelho de ponto para um usuário específico em um mês/ano.
    */
-  consultarEspelho(userId: number, mes: number, ano: number): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/espelho?user_id=${userId}&month=${mes}&year=${ano}`);
+  consultarEspelho(userId: number | null, mes: number, ano: number): Observable<any> {
+    let params =  `?month=${mes}&year=${ano}`;
+
+    if (userId){
+	params += `$user_id=${userId}`;
+    }
+    return this.http.get<any>(`${this.apiUrl}/espelho-ponto${params}`);
   }
 }
